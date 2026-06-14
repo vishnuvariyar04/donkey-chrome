@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Donkey",
+  "version": "1.0.0",
+  "description": "Persistent memory layer across AI tools",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://claude.ai/*",
+    "https://chatgpt.com/*",
+    "https://chat.openai.com/*",
+    "https://gemini.google.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://claude.ai/*",
+        "https://chatgpt.com/*",
+        "https://chat.openai.com/*",
+        "https://gemini.google.com/*"
+      ],
+      "js": [
+        "memory/db.js",
+        "memory/search.js",
+        "memory/formatter.js",
+        "content/toast.js",
+        "content/scraper.js",
+        "content/injector.js",
+        "content/commandParser.js",
+        "content/commandListener.js",
+        "content/index.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html"
+  }
+}
