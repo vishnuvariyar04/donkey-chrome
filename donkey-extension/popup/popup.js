@@ -3,7 +3,26 @@ async function render() {
   const projects = await getAllProjects()
 
   if (projects.length === 0) {
-    container.innerHTML = '<div class="empty">No memories saved yet.<br>Use @donkey save in any AI chat.</div>'
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-title">No memories saved yet</div>
+        <div class="cmd-block">
+          <div class="cmd-row">
+            <code>@donkey save</code>
+            <div class="cmd-desc">Save the entire conversation</div>
+          </div>
+          <div class="cmd-row">
+            <code>@donkey save <span>&lt;describe what to capture&gt;</span></code>
+            <div class="cmd-desc">Save a specific idea or decision</div>
+          </div>
+          <div class="cmd-row">
+            <code>@donkey <span>&lt;what are you working on&gt;</span></code>
+            <div class="cmd-desc">Pull in relevant past context into the chat</div>
+          </div>
+        </div>
+        <div class="empty-sites">Works on Claude · ChatGPT · Gemini</div>
+      </div>
+    `
     return
   }
 
@@ -64,6 +83,19 @@ async function renderTrace() {
   `).join('')
 }
 
+function wireHelpButton() {
+  const btn = document.getElementById('help-btn')
+  const section = document.getElementById('help-section')
+  let open = false
+  btn.addEventListener('click', () => {
+    open = !open
+    section.style.display = open ? 'flex' : 'none'
+    btn.style.background = open ? '#f3f4f6' : ''
+    btn.style.color = open ? '#111' : ''
+  })
+}
+
 render()
 wireDeleteControls()
+wireHelpButton()
 renderTrace()

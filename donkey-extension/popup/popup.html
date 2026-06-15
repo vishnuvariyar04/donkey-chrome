@@ -3,13 +3,53 @@
 <head>
   <meta charset="utf-8">
   <style>
-    body { width: 320px; font-family: sans-serif; font-size: 13px; padding: 12px; }
-    h2 { font-size: 15px; margin: 0 0 12px; }
+    * { box-sizing: border-box; }
+    body { width: 320px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 13px; padding: 12px; margin: 0; }
+
+    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .header h2 { font-size: 15px; margin: 0; }
+    .help-btn {
+      width: 22px; height: 22px; border-radius: 50%; border: 1px solid #d1d5db;
+      background: none; cursor: pointer; font-size: 12px; color: #6b7280;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .help-btn:hover { background: #f3f4f6; color: #111; }
+
+    #help-section {
+      display: none;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .help-row { display: flex; flex-direction: column; gap: 2px; }
+    .help-cmd { font-family: monospace; font-size: 12px; color: #111; }
+    .help-cmd span { color: #6b7280; }
+    .help-desc { font-size: 11px; color: #6b7280; }
+    .help-divider { border: none; border-top: 1px solid #e5e7eb; margin: 4px 0; }
+    .help-sites { font-size: 11px; color: #9ca3af; }
+
     .project { padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 8px; cursor: pointer; }
     .project:hover { background: #f9fafb; }
     .project-name { font-weight: 500; }
     .project-meta { color: #6b7280; font-size: 11px; margin-top: 2px; }
-    .empty { color: #9ca3af; text-align: center; padding: 24px 0; }
+
+    .empty-state { padding: 16px 0 8px; }
+    .empty-title { font-weight: 600; font-size: 13px; color: #111; margin-bottom: 12px; }
+    .cmd-block { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .cmd-row { display: flex; flex-direction: column; gap: 2px; }
+    .cmd-row code {
+      font-family: monospace; font-size: 12px; background: #f3f4f6;
+      border: 1px solid #e5e7eb; border-radius: 5px; padding: 3px 7px;
+      color: #111; display: inline-block;
+    }
+    .cmd-row code span { color: #9ca3af; }
+    .cmd-row .cmd-desc { font-size: 11px; color: #6b7280; margin-top: 2px; padding-left: 2px; }
+    .empty-sites { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+
     #clear-btn { margin-top: 12px; width: 100%; padding: 7px; background: none; border: 1px solid #fca5a5; color: #ef4444; border-radius: 6px; font-size: 12px; cursor: pointer; }
     #clear-btn:hover { background: #fef2f2; }
     #confirm-bar { display: none; margin-top: 8px; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; padding: 10px 12px; }
@@ -20,6 +60,7 @@
     #confirm-yes:hover { background: #dc2626; }
     #confirm-no { background: #e5e7eb; color: #374151; }
     #confirm-no:hover { background: #d1d5db; }
+
     #trace-section { margin-top: 14px; border-top: 1px solid #e5e7eb; padding-top: 10px; display: none; }
     #trace-section h3 { font-size: 11px; color: #6b7280; margin: 0 0 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
     #trace-query { font-size: 12px; color: #111; margin-bottom: 6px; }
@@ -32,8 +73,30 @@
   </style>
 </head>
 <body>
-  <h2>🫏 Donkey</h2>
+  <div class="header">
+    <h2><img src="../icons/icon32.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:4px">Donkey</h2>
+    <button class="help-btn" id="help-btn" title="How to use">?</button>
+  </div>
+
+  <div id="help-section">
+    <div class="help-row">
+      <div class="help-cmd">@donkey save</div>
+      <div class="help-desc">Save the entire conversation as a memory</div>
+    </div>
+    <div class="help-row">
+      <div class="help-cmd">@donkey save <span>&lt;describe what to capture&gt;</span></div>
+      <div class="help-desc">Save a specific idea or decision from the conversation</div>
+    </div>
+    <div class="help-row">
+      <div class="help-cmd">@donkey <span>&lt;what are you working on&gt;</span></div>
+      <div class="help-desc">Pull in relevant past context into the chat</div>
+    </div>
+    <hr class="help-divider">
+    <div class="help-sites">Works on Claude · ChatGPT · Gemini</div>
+  </div>
+
   <div id="projects"></div>
+
   <button id="clear-btn">Delete all memory</button>
   <div id="confirm-bar">
     <p>This will permanently delete all saved memories and cannot be undone.</p>

@@ -34,6 +34,7 @@
         "content/injector.js",
         "content/commandParser.js",
         "content/commandListener.js",
+        "content/hint.js",
         "content/index.js"
       ],
       "run_at": "document_start"

@@ -128,9 +128,11 @@ async function handleCommand(command) {
 
     const items = memories.map(m => ({ project: m.project, text: formatMemory(m, command.filter) }))
     injectText(items.map(i => i.text).join('\n'))
+    const { donkeyHasInjected } = await new Promise(r => chrome.storage.local.get('donkeyHasInjected', r))
+    if (!donkeyHasInjected) chrome.storage.local.set({ donkeyHasInjected: true })
     showMemoryPanel(items, remaining => {
       injectText(remaining.map(i => i.text).join('\n'))
-    })
+    }, !donkeyHasInjected)
     return
   }
 

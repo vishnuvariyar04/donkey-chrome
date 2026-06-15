@@ -64,7 +64,7 @@ function showToast(message, type = 'info') {
   }
 }
 
-function showMemoryPanel(items, onReplace) {
+function showMemoryPanel(items, onReplace, isFirstTime = false) {
   document.getElementById('donkey-toast')?.remove()
   document.getElementById('donkey-panel')?.remove()
 
@@ -219,4 +219,17 @@ function showMemoryPanel(items, onReplace) {
 
   document.body.appendChild(panel)
   document.body.appendChild(toast)
+
+  if (isFirstTime) {
+    setTimeout(() => {
+      panelVisible = true
+      panel.style.display = 'flex'
+      chevron.textContent = '▼'
+    }, 600)
+    setTimeout(() => {
+      panelVisible = false
+      panel.style.display = 'none'
+      chevron.textContent = '▲'
+    }, 3500)
+  }
 }
