@@ -16,6 +16,23 @@ export default {
       return new Response('Method not allowed', { status: 405, headers: CORS_HEADERS })
     }
 
+    const url = new URL(request.url)
+
+    if (url.pathname === '/embed') {
+      try {
+        const { text } = await request.json()
+        const result = await env.AI.run('@cf/baai/bge-small-en-v1.5', { text: [text] })
+        return new Response(JSON.stringify({ vector: result.data[0] }), {
+          headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+        })
+      } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...CORS_HEADERS }
+        })
+      }
+    }
+
     try {
       const { messages } = await request.json()
 

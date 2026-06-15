@@ -1,0 +1,12 @@
+{
+  "name": "donkey-extension",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "node build.js",
+    "watch": "node -e \"const{execSync}=require('child_process');const fs=require('fs');execSync('node build.js',{stdio:'inherit'});fs.watch('.',{recursive:true},(e,f)=>{if(f&&!f.startsWith('dist')&&!f.startsWith('node_modules')){console.log('changed:',f);execSync('node build.js',{stdio:'inherit'})}})\""
+  },
+  "devDependencies": {
+    "sharp": "^0.35.1"
+  }
+}
