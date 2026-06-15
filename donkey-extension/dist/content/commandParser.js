@@ -2,10 +2,9 @@ function parseCommand(raw) {
   const text = raw.replace('@donkey', '').trim()
   const lower = text.toLowerCase()
 
-  // save [optional project name override]
   if (/^save(\s|$)/i.test(text) || text === '') {
-    const projectMatch = text.match(/^save\s+(.+)$/i)
-    return { action: 'save', project: projectMatch?.[1]?.trim() }
+    const instructionMatch = text.match(/^save\s+(.+)$/i)
+    return { action: 'save', instruction: instructionMatch?.[1]?.trim() || null }
   }
 
   // Detect filter intent from natural language — keywords can appear anywhere

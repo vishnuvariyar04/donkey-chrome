@@ -12,23 +12,29 @@ const RESPONSE_SELECTORS = {
   'gemini.google.com': 'model-response .markdown'
 }
 
-const MEMORY_PROMPT = `Map our entire conversation into a structured JSON memory object. Write the JSON directly in your response message. Do NOT create a file, do NOT use an artifact, do NOT use code blocks or markdown fences. Keep structured fields concise (1 sentence per item). Return ONLY the raw JSON object starting with { and ending with }, nothing else.
-
+const MEMORY_SCHEMA = `Return ONLY a raw JSON object — no markdown, no code blocks, no explanation. Start with { and end with }. Use this exact schema:
 {
-  "project": "A short consistent slug for this project or topic (e.g. 'auth-service', 'mobile-app'). Infer it from context. Never use 'untagged' or generic names. If it clearly belongs to an existing project concept, reuse that name.",
-  "summary": "1-2 sentences on what was accomplished or discussed.",
-  "richText": "Write 2-3 paragraphs narrating this conversation as if briefing a future session. Cover: what was being built and why, the key decisions made and their reasoning, what failed or was rejected and why, and what a future session absolutely must know to continue without losing context. Be specific and concrete — name actual things, not just categories.",
-  "decisions": [{"what": "decision made", "why": "reasoning"}],
-  "mistakes": ["mistake or rejected approach and why it failed"],
-  "learnings": ["concrete thing discovered or confirmed"],
-  "constraints": ["hard limit or requirement that cannot be changed"],
-  "open_questions": ["unresolved item that needs future attention"],
+  "project": "short-kebab-case slug inferred from context (e.g. 'auth-service', 'reddit-idea'). Never use 'untagged'.",
+  "summary": "1-2 sentences on what this is about.",
+  "richText": "2-3 paragraphs briefing a future session: what it is, key decisions and reasoning, what failed and why, what must be known to continue. Be concrete — name actual things.",
+  "decisions": [{"what": "decision", "why": "reasoning"}],
+  "mistakes": ["rejected approach and why"],
+  "learnings": ["concrete thing discovered"],
+  "constraints": ["hard requirement that cannot change"],
+  "open_questions": ["unresolved item needing future attention"],
   "context": ["background a future session must know"],
   "deep_context": {},
-  "tags": ["2 to 4 lowercase keywords that best describe this work"]
+  "tags": ["2 to 4 lowercase keywords"]
 }
+For deep_context: a concise nested object (max 3-4 key-value pairs) with core architecture or key technical decisions. Keep values short. Leave any array empty if not applicable.`
 
-For deep_context: replace the empty object with a concise nested object (max 3-4 key-value pairs) capturing key structures like core architecture or main technical decisions. Keep values very short.`
+const MEMORY_PROMPT_FULL = `Map our entire conversation into a memory object. ${MEMORY_SCHEMA}`
+
+function buildTargetedPrompt(instruction) {
+  return `The user wants to save this specific thing from our conversation: "${instruction}"
+
+Extract and capture only what's relevant to that. ${MEMORY_SCHEMA}`
+}
 
 let donkeySubmitting = false
 
@@ -49,41 +55,37 @@ async function handleCommand(command) {
   console.log('Donkey debug: handleCommand called. action =', command.action);
 
   if (command.action === 'save') {
-    showToast('Asking AI to map context...', 'loading')
+    const prompt = command.instruction
+      ? buildTargetedPrompt(command.instruction)
+      : MEMORY_PROMPT_FULL
+
+    showToast(command.instruction ? `Saving: "${command.instruction}"...` : 'Asking AI to map context...', 'loading')
 
     const host = window.location.hostname
     const msgSelector = RESPONSE_SELECTORS[host] || '.font-claude-response-body'
     const beforeCount = document.querySelectorAll(msgSelector).length
-    console.log('Donkey debug: msgSelector =', msgSelector, 'beforeCount =', beforeCount);
 
     const input = getInputEl()
     if (!input) {
-      console.log('Donkey debug: input element NOT found!');
       showToast('Could not find chat input', 'error')
       return
     }
 
-    console.log('Donkey debug: Injecting extraction prompt...');
     if (input.contentEditable === 'true') {
       input.focus()
-      document.execCommand('insertText', false, MEMORY_PROMPT)
+      document.execCommand('insertText', false, prompt)
       input.dispatchEvent(new InputEvent('input', { bubbles: true }))
     } else {
       const setter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set
-      setter.call(input, MEMORY_PROMPT)
+      setter.call(input, prompt)
       input.dispatchEvent(new Event('input', { bubbles: true }))
     }
 
-    console.log('Donkey debug: Waiting 150ms for editor state digestion...');
     await new Promise(resolve => setTimeout(resolve, 150))
-
-    console.log('Donkey debug: Submitting extraction prompt...');
     await submitPrompt(input)
 
     showToast('Waiting for AI response...', 'loading')
-    console.log('Donkey debug: Starting waitForNewResponse...');
     const responseText = await waitForNewResponse(msgSelector, beforeCount)
-    console.log('Donkey debug: waitForNewResponse completed. responseText length =', responseText ? responseText.length : 'null');
 
     if (!responseText) {
       showToast('No response received — try again', 'error')
@@ -91,9 +93,7 @@ async function handleCommand(command) {
     }
 
     const jsonMatch = responseText.match(/\{[\s\S]*\}/)
-    console.log('Donkey debug: Regex match outcome =', jsonMatch ? 'Matched!' : 'Not matched');
     if (!jsonMatch) {
-      console.log('Donkey debug: Regex could not find JSON block in response:', responseText);
       showToast('AI did not return valid JSON', 'error')
       return
     }
@@ -101,22 +101,18 @@ async function handleCommand(command) {
     let memory
     try {
       memory = JSON.parse(jsonMatch[0])
-      console.log('Donkey debug: JSON successfully parsed! project =', memory.project);
     } catch (e) {
-      console.log('Donkey debug: JSON parsing failed on string:', jsonMatch[0], 'Error:', e);
       showToast('Could not parse AI response', 'error')
       return
     }
 
-    if (command.project) memory.project = command.project
-
-    showToast('Embedding and saving... (may take a few seconds)', 'loading')
+    showToast('Embedding and saving...', 'loading')
     const saved = await saveMemory(memory)
 
     if (saved.embedding) {
-      showToast(`Saved with semantic search — ${saved.project}`, 'success')
+      showToast(`Saved — ${saved.project}`, 'success')
     } else {
-      showToast(`Saved without embedding — check console for error (F12)`, 'error')
+      showToast(`Saved without embedding — check console (F12)`, 'error')
     }
     return
   }
