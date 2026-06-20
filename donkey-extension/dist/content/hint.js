@@ -20,27 +20,30 @@
       position: fixed;
       bottom: ${window.innerHeight - rect.top + 10}px;
       left: ${rect.left}px;
-      background: #111;
-      border: 1px solid #2a2a2a;
-      border-radius: 10px;
-      padding: 8px 14px;
+      background: rgba(10, 11, 16, 0.9);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 16px;
       z-index: 999999;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.45);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
       pointer-events: none;
       display: flex;
       flex-direction: column;
       gap: 6px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     `
     const row = (cmd, dim, desc) => `
-      <div style="display:flex;align-items:baseline;gap:6px;font-size:12px;font-family:-apple-system,BlinkMacSystemFont,sans-serif">
-        <span style="color:#fff;font-weight:600;white-space:nowrap">${cmd}</span>
-        ${dim ? `<span style="color:#555;white-space:nowrap">${dim}</span>` : ''}
-        <span style="color:#555">—</span>
-        <span style="color:#888">${desc}</span>
+      <div style="display:flex;align-items:baseline;gap:6px;font-size:12px;">
+        <span style="color:#ffffff;font-weight:600;white-space:nowrap">${cmd}</span>
+        ${dim ? `<span style="color:#64748b;white-space:nowrap">${dim}</span>` : ''}
+        <span style="color:#475569">—</span>
+        <span style="color:#94a3b8">${desc}</span>
       </div>
     `
     hint.innerHTML = `
-      <div style="font-size:10px;font-family:-apple-system,BlinkMacSystemFont,sans-serif;color:#444;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2px">Donkey</div>
+      <div style="font-size:10px;font-weight:700;color:#818cf8;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2px">Donkey Shortcuts</div>
       ${row('@donkey save', '', 'save the full conversation as memory')}
       ${row('@donkey save', '&lt;describe what to capture&gt;', 'save a specific idea or decision')}
       ${row('@donkey', '&lt;what are you working on&gt;', 'pull in relevant past context')}

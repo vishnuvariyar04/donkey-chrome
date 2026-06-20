@@ -2,114 +2,512 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
-    * { box-sizing: border-box; }
-    body { width: 320px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; font-size: 13px; padding: 12px; margin: 0; }
-
-    .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .header h2 { font-size: 15px; margin: 0; }
-    .help-btn {
-      width: 22px; height: 22px; border-radius: 50%; border: 1px solid #d1d5db;
-      background: none; cursor: pointer; font-size: 12px; color: #6b7280;
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-    .help-btn:hover { background: #f3f4f6; color: #111; }
+    body {
+      width: 340px;
+      background: #090a0f;
+      color: #e2e8f0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+      padding: 16px;
+      overflow-x: hidden;
+    }
 
-    #help-section {
-      display: none;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Layout & Header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .brand img {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+    }
+    .brand h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    /* Navigation Tabs */
+    .tabs-nav {
+      display: flex;
+      gap: 4px;
+      background: rgba(255, 255, 255, 0.04);
+      padding: 3px;
       border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: #94a3b8;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+      color: #f1f5f9;
+      background: rgba(255, 255, 255, 0.04);
+    }
+    .tab-btn.active {
+      color: #818cf8;
+      background: rgba(129, 140, 248, 0.15);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+    .tab-btn svg {
+      width: 16px;
+      height: 16px;
+      stroke-width: 2;
+    }
+
+    /* Tab Content structure */
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.25s ease forwards;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Memories Tab */
+    .project-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 250px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .project {
+      position: relative;
+      background: #11131c;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 10px;
+      padding: 12px;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .project:hover {
+      border-color: rgba(129, 140, 248, 0.3);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.05);
+      background: #141724;
+    }
+    .project-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .project-name {
+      font-weight: 600;
+      color: #f8fafc;
+      font-size: 13px;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 250px;
+    }
+    .project-meta {
+      color: #94a3b8;
+      font-size: 11px;
+    }
+    .delete-project-btn {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      padding: 2px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+    .delete-project-btn:hover {
+      color: #ef4444;
+      background: rgba(239, 68, 68, 0.1);
+    }
+    .delete-project-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke-width: 2;
+    }
+
+    /* Trace logs style */
+    #trace-section {
+      margin-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 12px;
+    }
+    #trace-section h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    #trace-query {
+      font-size: 11px;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+    .trace-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 11px;
+      border: 1px solid transparent;
+    }
+    .trace-row.pass {
+      background: rgba(16, 185, 129, 0.06);
+      border-color: rgba(16, 185, 129, 0.15);
+      color: #a7f3d0;
+    }
+    .trace-row.fail {
+      background: rgba(244, 63, 94, 0.06);
+      border-color: rgba(244, 63, 94, 0.15);
+      color: #fecdd3;
+    }
+    .trace-badge {
+      font-size: 10px;
+      line-height: 1;
+      padding-top: 1px;
+    }
+    .trace-name {
+      font-weight: 600;
+      color: #f8fafc;
+    }
+    .trace-detail {
+      color: #94a3b8;
+      margin-top: 2px;
+    }
+
+    /* Empty states */
+    .empty-state {
+      padding: 24px 12px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      color: #475569;
+    }
+    .empty-title {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #f1f5f9;
+    }
+    .empty-desc {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: -6px;
+      line-height: 1.4;
+    }
+
+    /* Settings Tab elements */
+    .settings-group {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .setting-item {
+      display: flex;
       flex-direction: column;
       gap: 6px;
     }
-    .help-row { display: flex; flex-direction: column; gap: 2px; }
-    .help-cmd { font-family: monospace; font-size: 12px; color: #111; }
-    .help-cmd span { color: #6b7280; }
-    .help-desc { font-size: 11px; color: #6b7280; }
-    .help-divider { border: none; border-top: 1px solid #e5e7eb; margin: 4px 0; }
-    .help-sites { font-size: 11px; color: #9ca3af; }
-
-    .project { padding: 8px; border: 1px solid #e5e7eb; border-radius: 6px; margin-bottom: 8px; cursor: pointer; }
-    .project:hover { background: #f9fafb; }
-    .project-name { font-weight: 500; }
-    .project-meta { color: #6b7280; font-size: 11px; margin-top: 2px; }
-
-    .empty-state { padding: 16px 0 8px; }
-    .empty-title { font-weight: 600; font-size: 13px; color: #111; margin-bottom: 12px; }
-    .cmd-block { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
-    .cmd-row { display: flex; flex-direction: column; gap: 2px; }
-    .cmd-row code {
-      font-family: monospace; font-size: 12px; background: #f3f4f6;
-      border: 1px solid #e5e7eb; border-radius: 5px; padding: 3px 7px;
-      color: #111; display: inline-block;
+    .setting-item label {
+      font-weight: 500;
+      color: #94a3b8;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
-    .cmd-row code span { color: #9ca3af; }
-    .cmd-row .cmd-desc { font-size: 11px; color: #6b7280; margin-top: 2px; padding-left: 2px; }
-    .empty-sites { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+    .setting-item input[type="text"] {
+      flex: 1;
+      background: #11131c;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: #f8fafc;
+      padding: 8px 12px;
+      font-family: inherit;
+      font-size: 12px;
+      transition: all 0.2s ease;
+    }
+    .setting-item input[type="text"]:focus {
+      border-color: #818cf8;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.25);
+    }
+    .btn {
+      background: #11131c;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #f1f5f9;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+      border: none;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    }
+    .btn-danger {
+      background: none;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.1);
+      border-color: #ef4444;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #64748b;
+      margin-top: 4px;
+    }
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #64748b;
+    }
+    .status-badge.online {
+      color: #10b981;
+    }
+    .status-badge.online .status-dot {
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+    .status-badge.offline {
+      color: #ef4444;
+    }
+    .status-badge.offline .status-dot {
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
 
-    #clear-btn { margin-top: 12px; width: 100%; padding: 7px; background: none; border: 1px solid #fca5a5; color: #ef4444; border-radius: 6px; font-size: 12px; cursor: pointer; }
-    #clear-btn:hover { background: #fef2f2; }
-    #confirm-bar { display: none; margin-top: 8px; background: #fef2f2; border: 1px solid #fca5a5; border-radius: 6px; padding: 10px 12px; }
-    #confirm-bar p { margin: 0 0 8px; font-size: 12px; color: #7f1d1d; }
-    #confirm-bar .actions { display: flex; gap: 8px; }
-    #confirm-bar .actions button { flex: 1; padding: 5px; border-radius: 5px; font-size: 12px; cursor: pointer; border: none; }
-    #confirm-yes { background: #ef4444; color: white; }
-    #confirm-yes:hover { background: #dc2626; }
-    #confirm-no { background: #e5e7eb; color: #374151; }
-    #confirm-no:hover { background: #d1d5db; }
+    /* Danger confirmation bar */
+    #confirm-bar {
+      display: none;
+      margin-top: 12px;
+      background: rgba(239, 68, 68, 0.08);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      animation: fadeIn 0.2s ease forwards;
+    }
+    #confirm-bar p {
+      font-size: 11px;
+      color: #fecdd3;
+      margin-bottom: 10px;
+    }
+    .confirm-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .confirm-actions button {
+      flex: 1;
+      padding: 6px;
+      font-size: 11px;
+    }
 
-    #trace-section { margin-top: 14px; border-top: 1px solid #e5e7eb; padding-top: 10px; display: none; }
-    #trace-section h3 { font-size: 11px; color: #6b7280; margin: 0 0 6px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
-    #trace-query { font-size: 12px; color: #111; margin-bottom: 6px; }
-    .trace-row { display: flex; align-items: flex-start; gap: 6px; padding: 5px 7px; border-radius: 5px; margin-bottom: 4px; font-size: 11px; }
-    .trace-row.pass { background: #f0fdf4; border: 1px solid #bbf7d0; }
-    .trace-row.fail { background: #fef2f2; border: 1px solid #fecaca; }
-    .trace-badge { font-size: 10px; margin-top: 1px; flex-shrink: 0; }
-    .trace-name { font-weight: 600; color: #111; }
-    .trace-detail { color: #6b7280; margin-top: 1px; }
+    /* Help Tab design */
+    .help-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .help-item {
+      background: #11131c;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .help-title {
+      font-family: monospace;
+      font-size: 12px;
+      font-weight: bold;
+      color: #818cf8;
+    }
+    .help-title span {
+      color: #94a3b8;
+      font-weight: normal;
+    }
+    .help-desc {
+      font-size: 11px;
+      color: #94a3b8;
+      line-height: 1.4;
+    }
+    .help-footer {
+      font-size: 11px;
+      color: #64748b;
+      text-align: center;
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
+  <!-- Header Bar -->
   <div class="header">
-    <h2><img src="../icons/icon32.png" style="width:20px;height:20px;vertical-align:middle;margin-right:6px;border-radius:4px">Donkey</h2>
-    <button class="help-btn" id="help-btn" title="How to use">?</button>
+    <div class="brand">
+      <img src="../icons/icon32.png" alt="Donkey logo">
+      <h2>Donkey</h2>
+    </div>
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="memories" title="Memories">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"></path></svg>
+      </button>
+      <button class="tab-btn" data-tab="settings" title="Settings">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+      </button>
+      <button class="tab-btn" data-tab="help" title="Help Guide">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </button>
+    </div>
   </div>
 
-  <div id="help-section">
-    <div class="help-row">
-      <div class="help-cmd">@donkey save</div>
-      <div class="help-desc">Save the entire conversation as a memory</div>
+  <!-- Memories Tab -->
+  <div id="tab-memories" class="tab-content active">
+    <div id="projects" class="project-list"></div>
+    <div id="trace-section" style="display: none;">
+      <h3>Last retrieval</h3>
+      <div id="trace-query"></div>
+      <div id="trace-rows"></div>
     </div>
-    <div class="help-row">
-      <div class="help-cmd">@donkey save <span>&lt;describe what to capture&gt;</span></div>
-      <div class="help-desc">Save a specific idea or decision from the conversation</div>
-    </div>
-    <div class="help-row">
-      <div class="help-cmd">@donkey <span>&lt;what are you working on&gt;</span></div>
-      <div class="help-desc">Pull in relevant past context into the chat</div>
-    </div>
-    <hr class="help-divider">
-    <div class="help-sites">Works on Claude · ChatGPT · Gemini</div>
   </div>
 
-  <div id="projects"></div>
-
-  <button id="clear-btn">Delete all memory</button>
-  <div id="confirm-bar">
-    <p>This will permanently delete all saved memories and cannot be undone.</p>
-    <div class="actions">
-      <button id="confirm-yes">Yes, delete everything</button>
-      <button id="confirm-no">Cancel</button>
+  <!-- Settings Tab -->
+  <div id="tab-settings" class="tab-content">
+    <div class="settings-group">
+      <div class="setting-item">
+        <label>Reset Memory</label>
+        <button id="clear-btn" class="btn btn-danger">Delete all memory</button>
+        <div id="confirm-bar">
+          <p>This will permanently erase all saved context from IndexedDB. This action cannot be undone.</p>
+          <div class="confirm-actions">
+            <button id="confirm-yes" class="btn btn-danger">Yes, clear all</button>
+            <button id="confirm-no" class="btn">Cancel</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-  <div id="trace-section">
-    <h3>Last retrieval</h3>
-    <div id="trace-query"></div>
-    <div id="trace-rows"></div>
+
+  <!-- Help Tab -->
+  <div id="tab-help" class="tab-content">
+    <div class="help-section">
+      <div class="help-item">
+        <div class="help-title">@donkey save</div>
+        <div class="help-desc">Saves the entire active chat thread as a project memory locally.</div>
+      </div>
+      <div class="help-item">
+        <div class="help-title">@donkey save <span>&lt;instructions&gt;</span></div>
+        <div class="help-desc">Saves a specific fact, rule, or decision from the active conversation.</div>
+      </div>
+      <div class="help-item">
+        <div class="help-title">@donkey use <span>&lt;project&gt;</span></div>
+        <div class="help-desc">Retrieves the full saved memory for a project and injects it into your chat box.</div>
+      </div>
+      <div class="help-item">
+        <div class="help-title">@donkey <span>[filter]</span> from <span>&lt;project&gt;</span></div>
+        <div class="help-desc">Injects specific segments. Example filters: <i>learnings, mistakes, decisions, constraints, context</i>.</div>
+      </div>
+      <div class="help-footer">
+        Works seamlessly on Claude, ChatGPT, and Gemini.
+      </div>
+    </div>
   </div>
+
   <script src="../memory/db.js"></script>
   <script src="popup.js"></script>
 </body>

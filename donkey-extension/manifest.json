@@ -5,8 +5,7 @@
   "description": "Persistent memory layer across AI tools",
   "permissions": [
     "activeTab",
-    "storage",
-    "scripting"
+    "storage"
   ],
   "host_permissions": [
     "https://claude.ai/*",

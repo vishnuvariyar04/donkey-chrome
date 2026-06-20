@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Welcome to Donkey 🫏</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="onboarding.css">
+</head>
+<body>
+  <div class="glow-orb main-orb"></div>
+  <div class="glow-orb secondary-orb"></div>
+  <canvas id="reveal-canvas"></canvas>
+
+  <div class="wrapper">
+    <main class="onboarding-card">
+      <!-- Header -->
+      <div class="card-header">
+        <div class="brand">
+          <div class="logo-wrapper">
+            <img src="../icons/icon128.png" alt="Donkey logo">
+          </div>
+          <h1>Donkey</h1>
+        </div>
+        <div class="status-badge">v1.0.0 · Local Layer</div>
+      </div>
+
+      <!-- Core Hero Text -->
+      <div class="hero-content">
+        <h2 class="hero-title">Your AI's Persistent Memory Layer</h2>
+        <p class="hero-subtitle">Stop re-explaining architecture patterns, rules, and APIs in every new chat window. Save context locally, retrieve it instantly.</p>
+      </div>
+
+      <!-- Steps Grid -->
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3>Activate</h3>
+          <p>Type <code>@donkey</code> in ChatGPT, Claude, or Gemini to trigger the shortcut menu.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h3>Save</h3>
+          <p>Type <code>@donkey save</code> to analyze and structure the active chat context into memory.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3>Recall</h3>
+          <p>Type <code>@donkey use [project]</code> to instantly inject relevant snippets into the input field.</p>
+        </div>
+      </div>
+
+      <!-- Mock CLI Status Widget -->
+      <div class="terminal-widget">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
+          <span class="terminal-title">donkey-cli --status</span>
+        </div>
+        <div class="terminal-body">
+          <div class="terminal-line"><span class="prompt">$</span> donkey init</div>
+          <div class="terminal-line success"><span class="icon">✓</span> Initialized local persistent memory database in IndexedDB.</div>
+          <div class="terminal-line"><span class="prompt">$</span> donkey status</div>
+          <div class="terminal-line info"><span class="bullet">▪</span> Storage: 100% Offline (No third-party database syncs)</div>
+          <div class="terminal-line info"><span class="bullet">▪</span> Integration: Active on chatgpt.com, claude.ai, gemini.google.com</div>
+          <div class="terminal-line highlight"><span class="prompt">Ready:</span> Open any LLM chat window to start using @donkey shortcuts.</div>
+        </div>
+      </div>
+
+      <!-- Call to Action -->
+      <div class="cta-actions">
+        <a href="https://chatgpt.com" target="_blank" class="btn btn-primary">Open ChatGPT</a>
+        <a href="https://claude.ai" target="_blank" class="btn btn-secondary">Open Claude</a>
+      </div>
+
+      <!-- Footer -->
+      <footer class="card-footer">
+        <p>🔒 100% private. All structured memories reside locally inside your browser's secure sandboxed storage.</p>
+      </footer>
+    </main>
+  </div>
+  <script src="onboarding.js"></script>
+</body>
+</html>

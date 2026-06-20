@@ -2,10 +2,10 @@ function showToast(message, type = 'info') {
   document.getElementById('donkey-toast')?.remove()
 
   const icons = {
-    success: { bg: '#22c55e', symbol: '✓' },
-    error:   { bg: '#ef4444', symbol: '✕' },
-    loading: { bg: '#6b7280', symbol: '…' },
-    info:    { bg: '#3b82f6', symbol: 'i' }
+    success: { bg: '#10b981', glow: 'rgba(16, 185, 129, 0.4)', symbol: '✓' },
+    error:   { bg: '#f43f5e', glow: 'rgba(244, 63, 94, 0.4)', symbol: '✕' },
+    loading: { bg: '#818cf8', glow: 'rgba(129, 140, 248, 0.4)', symbol: '…' },
+    info:    { bg: '#3b82f6', glow: 'rgba(59, 130, 246, 0.4)', symbol: 'i' }
   }
 
   const icon = icons[type] || icons.info
@@ -16,28 +16,33 @@ function showToast(message, type = 'info') {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    background: #111;
-    color: #fff;
-    padding: 10px 16px 10px 10px;
-    border-radius: 999px;
+    background: rgba(10, 11, 16, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #f1f5f9;
+    padding: 10px 18px 10px 12px;
+    border-radius: 99px;
     font-size: 13px;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     font-weight: 500;
     z-index: 999999;
     display: flex;
     align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-    transition: opacity 0.25s ease;
-    opacity: 1;
+    gap: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    transform: translateY(12px);
   `
 
   const dot = document.createElement('div')
   dot.style.cssText = `
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: ${icon.bg};
+    box-shadow: 0 0 8px ${icon.glow};
     display: flex;
     align-items: center;
     justify-content: center;
@@ -49,6 +54,22 @@ function showToast(message, type = 'info') {
   `
   dot.textContent = icon.symbol
 
+  // Add rotate animation for loading symbol
+  if (type === 'loading') {
+    dot.style.animation = 'donkey-rotate 1.2s linear infinite'
+    if (!document.getElementById('donkey-toast-styles')) {
+      const styles = document.createElement('style')
+      styles.id = 'donkey-toast-styles'
+      styles.textContent = `
+        @keyframes donkey-rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `
+      document.head.appendChild(styles)
+    }
+  }
+
   const label = document.createElement('span')
   label.textContent = message
 
@@ -56,11 +77,18 @@ function showToast(message, type = 'info') {
   toast.appendChild(label)
   document.body.appendChild(toast)
 
+  // Smooth slide up & fade-in
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1'
+    toast.style.transform = 'translateY(0)'
+  })
+
   if (type !== 'loading') {
     setTimeout(() => {
       toast.style.opacity = '0'
-      setTimeout(() => toast.remove(), 250)
-    }, 3000)
+      toast.style.transform = 'translateY(8px)'
+      setTimeout(() => toast.remove(), 300)
+    }, 3200)
   }
 }
 
@@ -71,23 +99,26 @@ function showMemoryPanel(items, onReplace, isFirstTime = false) {
   let panelVisible = false
   let remaining = [...items]
 
-  // Panel
+  // Panel Container
   const panel = document.createElement('div')
   panel.id = 'donkey-panel'
   panel.style.cssText = `
     position: fixed;
-    bottom: 70px;
+    bottom: 74px;
     right: 24px;
-    background: #1a1a1a;
-    border: 1px solid #2e2e2e;
-    border-radius: 12px;
-    padding: 4px;
-    min-width: 210px;
+    background: rgba(10, 11, 16, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 6px;
+    min-width: 220px;
     z-index: 999999;
     display: none;
     flex-direction: column;
-    gap: 2px;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    gap: 4px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   `
 
   function renderRows() {
@@ -98,20 +129,21 @@ function showMemoryPanel(items, onReplace, isFirstTime = false) {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 7px 10px;
+        padding: 8px 12px;
         gap: 16px;
         border-radius: 8px;
         cursor: default;
+        transition: background 0.15s ease;
       `
-      row.addEventListener('mouseenter', () => row.style.background = '#252525')
+      row.addEventListener('mouseenter', () => row.style.background = 'rgba(255, 255, 255, 0.06)')
       row.addEventListener('mouseleave', () => row.style.background = 'transparent')
 
       const name = document.createElement('span')
       name.textContent = item.project
       name.style.cssText = `
         font-size: 12px;
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        color: #e5e5e5;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #e2e8f0;
         font-weight: 500;
         white-space: nowrap;
         overflow: hidden;
@@ -124,16 +156,22 @@ function showMemoryPanel(items, onReplace, isFirstTime = false) {
       xBtn.style.cssText = `
         background: none;
         border: none;
-        color: #555;
+        color: #64748b;
         cursor: pointer;
-        font-size: 17px;
+        font-size: 18px;
         line-height: 1;
         padding: 0;
         flex-shrink: 0;
-        transition: color 0.15s;
+        transition: color 0.15s, transform 0.15s;
       `
-      xBtn.addEventListener('mouseenter', () => xBtn.style.color = '#ef4444')
-      xBtn.addEventListener('mouseleave', () => xBtn.style.color = '#555')
+      xBtn.addEventListener('mouseenter', () => {
+        xBtn.style.color = '#f43f5e'
+        xBtn.style.transform = 'scale(1.1)'
+      })
+      xBtn.addEventListener('mouseleave', () => {
+        xBtn.style.color = '#64748b'
+        xBtn.style.transform = 'scale(1)'
+      })
       xBtn.addEventListener('click', e => {
         e.stopPropagation()
         remaining = remaining.filter(i => i !== item)
@@ -160,28 +198,33 @@ function showMemoryPanel(items, onReplace, isFirstTime = false) {
     position: fixed;
     bottom: 24px;
     right: 24px;
-    background: #111;
-    color: #fff;
-    padding: 10px 14px 10px 10px;
-    border-radius: 999px;
+    background: rgba(10, 11, 16, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #f1f5f9;
+    padding: 10px 16px 10px 12px;
+    border-radius: 99px;
     font-size: 13px;
-    font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     font-weight: 500;
     z-index: 999999;
     display: flex;
     align-items: center;
-    gap: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    gap: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
     cursor: pointer;
     user-select: none;
+    transition: all 0.25s ease;
   `
 
   const dot = document.createElement('div')
   dot.style.cssText = `
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
-    background: #22c55e;
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -196,7 +239,12 @@ function showMemoryPanel(items, onReplace, isFirstTime = false) {
   const label = document.createElement('span')
 
   const chevron = document.createElement('span')
-  chevron.style.cssText = `font-size: 9px; color: #666; margin-left: 2px;`
+  chevron.style.cssText = `
+    font-size: 8px; 
+    color: #94a3b8; 
+    margin-left: 2px;
+    transition: transform 0.2s ease;
+  `
   chevron.textContent = '▲'
 
   function updateLabel() {
@@ -208,6 +256,7 @@ function showMemoryPanel(items, onReplace, isFirstTime = false) {
     panelVisible = !panelVisible
     panel.style.display = panelVisible ? 'flex' : 'none'
     chevron.textContent = panelVisible ? '▼' : '▲'
+    chevron.style.transform = panelVisible ? 'rotate(180deg)' : 'rotate(0deg)'
   })
 
   toast.appendChild(dot)
@@ -225,11 +274,14 @@ function showMemoryPanel(items, onReplace, isFirstTime = false) {
       panelVisible = true
       panel.style.display = 'flex'
       chevron.textContent = '▼'
+      chevron.style.transform = 'rotate(180deg)'
     }, 600)
     setTimeout(() => {
       panelVisible = false
       panel.style.display = 'none'
       chevron.textContent = '▲'
-    }, 3500)
+      chevron.style.transform = 'rotate(0deg)'
+    }, 3800)
   }
 }
+

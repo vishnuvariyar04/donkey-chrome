@@ -7,15 +7,48 @@ function parseCommand(raw) {
     return { action: 'save', instruction: instructionMatch?.[1]?.trim() || null }
   }
 
-  // Detect filter intent from natural language — keywords can appear anywhere
+  // 1. Detect filter intent using context-aware matching to avoid matching filter keywords that are part of project names
   let filter = 'full'
-  if (/mistake|went wrong|fail|avoid|rejected|didn.t work|bad approach/.test(lower)) filter = 'mistakes'
-  else if (/decision|chose|picked|went with|selected|settled on|why did/.test(lower)) filter = 'decisions'
-  else if (/learn|discover|found out|realized|figured out|insight/.test(lower)) filter = 'learnings'
-  else if (/constraint|limit|requirement|must|cannot|can.t|restriction/.test(lower)) filter = 'constraints'
-  else if (/question|unclear|unknown|open|unresolved|wonder|pending/.test(lower)) filter = 'open_questions'
-  else if (/context|background|about|overview|summary|what was/.test(lower)) filter = 'context'
+  let cleanedText = text
 
-  // Pass the full natural language text as the search query — semantic search handles the rest
-  return { action: 'use', query: text, filter }
+  const filterPatterns = [
+    { type: 'mistakes', baseRegexStr: 'mistake[s]?|went wrong|fail(?:ed|ure)?|avoid|rejected|didn[\'’]t work|bad approach' },
+    { type: 'decisions', baseRegexStr: 'decision[s]?|chose|picked|went with|selected|settled on|why did' },
+    { type: 'learnings', baseRegexStr: 'learn(?:ing[s]?|ed|s)?|discover[y]?[s]?|found out|realized|figured out|insight[s]?' },
+    { type: 'constraints', baseRegexStr: 'constraint[s]?|limit[s]?|requirement[s]?|must|cannot|can[\'’]t|restriction[s]?' },
+    { type: 'open_questions', baseRegexStr: 'question[s]?|unclear|unknown|open|unresolved|wonder|pending' },
+    { type: 'context', baseRegexStr: 'context|background|about|overview|summary|what was' }
+  ]
+
+  const prepositions = 'from|in|of|about|on|for|to'
+  const startHelpers = 'give\\s+me\\s+|show\\s+|get\\s+|retrieve\\s+|use\\s+'
+
+  for (const f of filterPatterns) {
+    const prepRegex = new RegExp('\\b(' + f.baseRegexStr + ')\\b\\s+(?:' + prepositions + ')\\b', 'gi')
+    const startRegex = new RegExp('^(?:' + startHelpers + ')?\\b(' + f.baseRegexStr + ')\\b', 'gi')
+
+    let match = text.match(prepRegex)
+    if (match) {
+      filter = f.type
+      cleanedText = cleanedText.replace(prepRegex, '')
+      break
+    }
+
+    match = text.match(startRegex)
+    if (match) {
+      filter = f.type
+      cleanedText = cleanedText.replace(startRegex, '')
+      break
+    }
+  }
+
+  // 2. Strip general helper/filler words
+  const helperRegex = /\b(use|project[s]?|from|give\s+me|get|avoid|in|for|show|retrieve|what\s+is|what\s+are|please|me|tell|display|a|the|an|of|with)\b/gi
+  cleanedText = cleanedText.replace(helperRegex, '')
+
+  // Clean up whitespace
+  cleanedText = cleanedText.replace(/\s+/g, ' ').trim()
+
+  return { action: 'use', query: cleanedText, filter }
 }
+

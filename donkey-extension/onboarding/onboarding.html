@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Welcome to Donkey 🫏</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="onboarding.css">
+</head>
+
+<body>
+  <div class="glow-orb main-orb"></div>
+  <div class="glow-orb secondary-orb"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <img src="../icons/icon128.png" alt="Donkey logo">
+        <h1>Donkey</h1>
+      </div>
+      <div class="badge">v1.0.0 · Production Ready</div>
+    </header>
+
+    <!-- Main Grid -->
+    <main class="grid">
+      <!-- Left Column: Value Prop & Setup -->
+      <section class="left-panel">
+        <h2 class="hero-title">Your AI's persistent memory layer.</h2>
+        <p class="hero-subtitle">Stop re-explaining architecture, patterns, and rules in every new chat window. Save
+          context locally, retrieve it instantly.</p>
+
+        <!-- Feature List -->
+        <div class="features">
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8 4H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-2m-4-1v8m0 0l3-3m-3 3L9 8m-5 5h2.586a1 1 0 01.707.293l2.414 2.414a1 1 0 00.707.293h3.172a1 1 0 00.707-.293l2.414-2.414a1 1 0 01.707-.293H20">
+                </path>
+              </svg>
+            </div>
+            <div>
+              <h3>Capture context automatically</h3>
+              <p>Type <code>@donkey save</code> in any chat. The Cloudflare worker structures your decisions, learnings,
+                and mistakes behind the scenes.</p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z">
+                </path>
+              </svg>
+            </div>
+            <div>
+              <h3>Inject context instantly</h3>
+              <p>Type <code>@donkey use project-x</code> or filter specifically like
+                <code>@donkey avoid mistakes in project-x</code> to load tailored snippets.
+              </p>
+            </div>
+          </div>
+
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                </path>
+              </svg>
+            </div>
+            <div>
+              <h3>100% local and private</h3>
+              <p>All structured memories are saved strictly inside IndexedDB in your browser. No tracking, no external
+                database leaks.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Interactive Sandbox Simulator -->
+      <section class="right-panel">
+        <div class="simulator-header">
+          <div class="window-controls">
+            <span class="window-dot red"></span>
+            <span class="window-dot yellow"></span>
+            <span class="window-dot green"></span>
+          </div>
+          <div class="window-title">AI Chat Simulator</div>
+        </div>
+
+        <!-- Simulated Chat Interface -->
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages">
+            <div class="message assistant">
+              <div class="message-content">
+                <p>👋 Welcome to the Donkey onboarding playground!</p>
+                <p>This is a simulated AI chat window. Type <strong><code>@donkey</code></strong> in the box below to
+                  see how the autocomplete list pops up, then hit enter to test it!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="chat-input-area">
+            <!-- Autocomplete Menu -->
+            <div class="autocomplete-menu" id="autocomplete-menu">
+              <div class="autocomplete-header">Donkey Shortcuts</div>
+              <div class="autocomplete-item active" data-cmd="@donkey save">
+                <span class="cmd-text">@donkey save</span>
+                <span class="cmd-desc">— Save conversation history as a memory</span>
+              </div>
+              <div class="autocomplete-item" data-cmd="@donkey use mock-auth">
+                <span class="cmd-text">@donkey use <span>mock-auth</span></span>
+                <span class="cmd-desc">— Inject all memory from mock-auth</span>
+              </div>
+              <div class="autocomplete-item" data-cmd="@donkey avoid mistakes in mock-auth">
+                <span class="cmd-text">@donkey avoid mistakes in <span>mock-auth</span></span>
+                <span class="cmd-desc">— Inject mistakes from mock-auth</span>
+              </div>
+            </div>
+
+            <!-- Injected text indicator -->
+            <div class="injection-success-toast" id="injection-toast">
+              <span class="toast-check">✓</span>
+              <span>Injected memory from mock-auth</span>
+            </div>
+
+            <!-- Input wrapper -->
+            <div class="input-wrapper">
+              <textarea id="sandbox-input" placeholder="Type a message or @donkey..." rows="1"></textarea>
+              <button class="send-btn" id="send-btn">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <script src="onboarding.js"></script>
+</body>
+
+</html>
