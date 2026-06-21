@@ -123,10 +123,10 @@ function showUpgradeToast() {
 
   const text = document.createElement('div')
   text.style.cssText = 'line-height: 1.4; color: #e2e8f0;'
-  text.innerHTML = `You've used all <b>${DONKEY_FREE_SAVE_LIMIT}</b> free saves. Unlock <b>unlimited memory forever</b> for a one-time $30.`
+  text.innerHTML = `You've used all <b>${DONKEY_FREE_SAVE_LIMIT}</b> free saves. Unlock <b>unlimited memory forever</b> for a one-time $29.`
 
   const cta = document.createElement('button')
-  cta.textContent = 'Get lifetime access — $30'
+  cta.textContent = 'Get lifetime access — $29'
   cta.style.cssText = `
     background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
     border: none;
