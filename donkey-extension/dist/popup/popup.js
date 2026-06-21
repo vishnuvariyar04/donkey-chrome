@@ -163,10 +163,59 @@ function wireDeleteControls() {
   })
 }
 
+// Plan / lifetime-deal controls
+async function renderPlan() {
+  const lic = await getLicenseState()
+  const statusBadge = document.getElementById('plan-status')
+  const planText = document.getElementById('plan-text')
+  const upgradeBtn = document.getElementById('upgrade-btn')
+  const licenseRow = document.getElementById('license-row')
+
+  if (lic.pro) {
+    statusBadge.classList.add('online')
+    statusBadge.classList.remove('offline')
+    planText.textContent = 'Lifetime — unlimited'
+    upgradeBtn.style.display = 'none'
+    licenseRow.style.display = 'none'
+  } else {
+    statusBadge.classList.remove('online')
+    const left = Math.max(0, lic.limit - lic.savesUsed)
+    planText.textContent = `Free trial — ${left} of ${lic.limit} saves left`
+    upgradeBtn.style.display = 'flex'
+    licenseRow.style.display = 'flex'
+  }
+}
+
+function wirePlanControls() {
+  document.getElementById('upgrade-btn').addEventListener('click', () => {
+    track('upgrade_clicked', { placement: 'settings' })
+    chrome.tabs.create({ url: DONKEY_LTD_URL })
+  })
+
+  document.getElementById('activate-btn').addEventListener('click', async () => {
+    const input = document.getElementById('license-input')
+    const msg = document.getElementById('license-msg')
+    msg.style.display = 'flex'
+    msg.textContent = 'Checking…'
+
+    const result = await activateLicense(input.value)
+    if (result.ok) {
+      track('license_activated')
+      msg.textContent = '✓ Activated — unlimited unlocked'
+      input.value = ''
+      renderPlan()
+    } else {
+      msg.textContent = `✕ ${result.error}`
+    }
+  })
+}
+
 // Initializer
 document.addEventListener('DOMContentLoaded', () => {
   render()
   initTabs()
   wireDeleteControls()
   renderTrace()
+  renderPlan()
+  wirePlanControls()
 })

@@ -28,6 +28,8 @@
         "memory/db.js",
         "memory/search.js",
         "memory/formatter.js",
+        "memory/license.js",
+        "memory/telemetry.js",
         "content/toast.js",
         "content/scraper.js",
         "content/injector.js",

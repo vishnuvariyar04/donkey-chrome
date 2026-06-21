@@ -92,6 +92,69 @@ function showToast(message, type = 'info') {
   }
 }
 
+// Clickable wall shown when a trial user hits the free-save limit.
+function showUpgradeToast() {
+  document.getElementById('donkey-toast')?.remove()
+  document.getElementById('donkey-panel')?.remove()
+
+  const toast = document.createElement('div')
+  toast.id = 'donkey-toast'
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: rgba(10, 11, 16, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #f1f5f9;
+    padding: 12px 16px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-weight: 500;
+    z-index: 999999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 280px;
+    border: 1px solid rgba(129, 140, 248, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+  `
+
+  const text = document.createElement('div')
+  text.style.cssText = 'line-height: 1.4; color: #e2e8f0;'
+  text.innerHTML = `You've used all <b>${DONKEY_FREE_SAVE_LIMIT}</b> free saves. Unlock <b>unlimited memory forever</b> for a one-time $30.`
+
+  const cta = document.createElement('button')
+  cta.textContent = 'Get lifetime access — $30'
+  cta.style.cssText = `
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    border: none;
+    color: #fff;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+  `
+  cta.addEventListener('click', () => {
+    track('upgrade_clicked', { placement: 'wall' })
+    window.open(DONKEY_LTD_URL, '_blank')
+    toast.remove()
+  })
+
+  const dismiss = document.createElement('span')
+  dismiss.textContent = 'Maybe later'
+  dismiss.style.cssText = 'font-size: 11px; color: #64748b; cursor: pointer; text-align: center;'
+  dismiss.addEventListener('click', () => toast.remove())
+
+  toast.appendChild(text)
+  toast.appendChild(cta)
+  toast.appendChild(dismiss)
+  document.body.appendChild(toast)
+}
+
 function showMemoryPanel(items, onReplace, isFirstTime = false) {
   document.getElementById('donkey-toast')?.remove()
   document.getElementById('donkey-panel')?.remove()

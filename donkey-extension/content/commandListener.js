@@ -55,6 +55,12 @@ async function handleCommand(command) {
   console.log('Donkey debug: handleCommand called. action =', command.action);
 
   if (command.action === 'save') {
+    if (!(await canSave())) {
+      track('trial_exhausted')
+      showUpgradeToast()
+      return
+    }
+
     const prompt = command.instruction
       ? buildTargetedPrompt(command.instruction)
       : MEMORY_PROMPT_FULL
@@ -109,8 +115,21 @@ async function handleCommand(command) {
     showToast('Embedding and saving...', 'loading')
     const saved = await saveMemory(memory)
 
+    // Only burn a trial credit once the save actually succeeds.
+    await incrementSaveCount()
+    const lic = await getLicenseState()
+    const leftSuffix = lic.pro
+      ? ''
+      : ` · ${Math.max(0, lic.limit - lic.savesUsed)} free saves left`
+
+    track('memory_saved', {
+      source: saved.source,
+      targeted: !!command.instruction,
+      embedded: !!saved.embedding
+    })
+
     if (saved.embedding) {
-      showToast(`Saved — ${saved.project}`, 'success')
+      showToast(`Saved — ${saved.project}${leftSuffix}`, 'success')
     } else {
       showToast(`Saved without embedding — check console (F12)`, 'error')
     }
@@ -127,6 +146,7 @@ async function handleCommand(command) {
     }
 
     const items = memories.map(m => ({ project: m.project, text: formatMemory(m, command.filter) }))
+    track('memory_retrieved', { source: window.location.hostname, count: items.length, filter: command.filter })
     injectText(items.map(i => i.text).join('\n'))
     const { donkeyHasInjected } = await new Promise(r => chrome.storage.local.get('donkeyHasInjected', r))
     if (!donkeyHasInjected) chrome.storage.local.set({ donkeyHasInjected: true })

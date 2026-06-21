@@ -434,6 +434,28 @@
       text-align: center;
       margin-top: 6px;
     }
+
+    /* ── Rounder, softer aesthetic ── */
+    body {
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .header { padding-bottom: 14px; }
+    .tabs-nav { border-radius: 12px; padding: 4px; }
+    .tab-btn { border-radius: 10px; }
+    .project { border-radius: 16px; padding: 14px; }
+    .btn,
+    .setting-item input[type="text"] { border-radius: 12px; }
+    .help-item { border-radius: 14px; }
+    #confirm-bar,
+    #trace-query,
+    .trace-row { border-radius: 14px; }
+    .status-badge { border-radius: 99px; }
+    /* Make the highlighted Activate button pop */
+    #activate-btn {
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+    }
+    #upgrade-btn { border-radius: 12px; padding: 11px 12px; }
   </style>
 </head>
 <body>
@@ -470,6 +492,16 @@
   <div id="tab-settings" class="tab-content">
     <div class="settings-group">
       <div class="setting-item">
+        <label>Plan</label>
+        <div id="plan-status" class="status-badge"><span class="status-dot"></span><span id="plan-text">Loading…</span></div>
+        <button id="upgrade-btn" class="btn btn-primary" style="display:none">Get lifetime access — $30</button>
+        <div class="input-row" id="license-row" style="display:none">
+          <input type="text" id="license-input" placeholder="Paste license key">
+          <button id="activate-btn" class="btn btn-primary">Activate</button>
+        </div>
+        <div id="license-msg" class="status-badge" style="display:none"></div>
+      </div>
+      <div class="setting-item">
         <label>Reset Memory</label>
         <button id="clear-btn" class="btn btn-danger">Delete all memory</button>
         <div id="confirm-bar">
@@ -491,10 +523,6 @@
         <div class="help-desc">Saves the entire active chat thread as a project memory locally.</div>
       </div>
       <div class="help-item">
-        <div class="help-title">@donkey save <span>&lt;instructions&gt;</span></div>
-        <div class="help-desc">Saves a specific fact, rule, or decision from the active conversation.</div>
-      </div>
-      <div class="help-item">
         <div class="help-title">@donkey use <span>&lt;project&gt;</span></div>
         <div class="help-desc">Retrieves the full saved memory for a project and injects it into your chat box.</div>
       </div>
@@ -509,6 +537,8 @@
   </div>
 
   <script src="../memory/db.js"></script>
+  <script src="../memory/license.js"></script>
+  <script src="../memory/telemetry.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

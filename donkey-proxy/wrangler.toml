@@ -4,6 +4,17 @@ compatibility_date = "2024-01-01"
 
 [vars]
 # Do not put the key here — use: wrangler secret put GROQ_API_KEY
+# Licensing secrets (set the same way):
+#   wrangler secret put RAZORPAY_WEBHOOK_SECRET   # from the Razorpay webhook setup
+#   wrangler secret put RAZORPAY_KEY_ID           # Razorpay API key id   (for /claim fallback)
+#   wrangler secret put RAZORPAY_KEY_SECRET       # Razorpay API key secret
 
 [ai]
 binding = "AI"
+
+# License key + activation storage. Create it once with:
+#   wrangler kv namespace create LICENSES
+# then paste the printed id below.
+[[kv_namespaces]]
+binding = "LICENSES"
+id = "b0c9c8ff71a04d7384fd49b567499982"

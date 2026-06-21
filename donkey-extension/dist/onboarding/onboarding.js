@@ -1,151 +1,226 @@
 document.addEventListener('DOMContentLoaded', () => {
-  initCanvasReveal();
-});
+  initSimulator()
+})
 
-// Canvas Reveal Effect (translates the React CanvasRevealEffect WebGL shader logic to a high-perf 2D Canvas)
-function initCanvasReveal() {
-  const canvas = document.getElementById('reveal-canvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
+// 2. Chat Simulator
+function initSimulator() {
+  const chatMessages = document.getElementById('chat-messages')
+  const input = document.getElementById('sandbox-input')
+  const sendBtn = document.getElementById('send-btn')
+  const menu = document.getElementById('autocomplete-menu')
+  const items = document.querySelectorAll('.autocomplete-item')
+  const toast = document.getElementById('injection-toast')
 
-  let dots = [];
-  const totalSize = 20; // grid cell size
-  const dotSize = 6;    // 6x6 square dots
-  let cols = 0;
-  let rows = 0;
+  let activeIndex = 0
+  let isMenuVisible = false
 
-  // React component opacities list
-  const opacities = [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1.0];
-  const startTime = Date.now();
+  // Resize textarea on content height
+  input.addEventListener('input', () => {
+    input.style.height = 'auto'
+    input.style.height = `${input.scrollHeight - 4}px`
 
-  // Mouse tracking
-  let mouse = { x: -9999, y: -9999 };
-  let isMouseOver = false;
+    // Check trigger autocomplete
+    const val = input.value
+    if (val.startsWith('@donkey') && !val.includes(' ', 8)) {
+      showMenu()
+    } else {
+      hideMenu()
+    }
+  })
 
-  // Pseudo-random generator matching GLSL fract(tan(distance...))
-  function random(x, y) {
-    const PHI = 1.61803398874989484820459;
-    // Simple deterministic hash
-    const dotProduct = x * PHI + y * 12.9898;
-    const sinVal = Math.sin(dotProduct) * 43758.5453;
-    return sinVal - Math.floor(sinVal);
+  function showMenu() {
+    menu.style.display = 'flex'
+    isMenuVisible = true
+    updateActiveItem()
   }
 
-  // Double resolution resizing for crisp high-DPI displays
-  function resize() {
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
+  function hideMenu() {
+    menu.style.display = 'none'
+    isMenuVisible = false
+  }
 
-    cols = Math.ceil(rect.width / totalSize);
-    rows = Math.ceil(rect.height / totalSize);
+  function updateActiveItem() {
+    items.forEach((item, index) => {
+      if (index === activeIndex) {
+        item.classList.add('active')
+        // Scroll menu if needed
+        item.scrollIntoView({ block: 'nearest' })
+      } else {
+        item.classList.remove('active')
+      }
+    })
+  }
 
-    dots = [];
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        // Precompute stable random values for each cell coordinates
-        const showOffset = random(c, r);
-        dots.push({
-          x: c * totalSize + totalSize / 2,
-          y: r * totalSize + totalSize / 2,
-          col: c,
-          row: r,
-          showOffset: showOffset
-        });
+  // Keyboard navigation inside text input
+  input.addEventListener('keydown', (e) => {
+    if (isMenuVisible) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        activeIndex = (activeIndex + 1) % items.length
+        updateActiveItem()
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        activeIndex = (activeIndex - 1 + items.length) % items.length
+        updateActiveItem()
+      } else if (e.key === 'Enter') {
+        e.preventDefault()
+        selectItem(items[activeIndex])
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        hideMenu()
+      }
+    } else {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        sendMessage()
       }
     }
+  })
+
+  // Mouse select item
+  items.forEach((item, idx) => {
+    item.addEventListener('mouseenter', () => {
+      activeIndex = idx
+      updateActiveItem()
+    })
+    item.addEventListener('click', () => {
+      selectItem(item)
+    })
+  })
+
+  function selectItem(item) {
+    const cmd = item.getAttribute('data-cmd')
+    input.value = cmd
+    hideMenu()
+    input.focus()
+    // Auto resize
+    input.style.height = 'auto'
+    input.style.height = `${input.scrollHeight - 4}px`
   }
 
-  window.addEventListener('resize', resize);
-  resize();
+  // Send message
+  sendBtn.addEventListener('click', sendMessage)
 
-  // Mouse event listeners
-  window.addEventListener('mousemove', (e) => {
-    const rect = canvas.getBoundingClientRect();
-    mouse.x = e.clientX - rect.left;
-    mouse.y = e.clientY - rect.top;
-    isMouseOver = true;
-  });
+  function appendMessage(sender, text, isMarkdown = false) {
+    const msgDiv = document.createElement('div')
+    msgDiv.className = `message ${sender}`
 
-  window.addEventListener('mouseleave', () => {
-    isMouseOver = false;
-    mouse.x = -9999;
-    mouse.y = -9999;
-  });
+    const contentDiv = document.createElement('div')
+    contentDiv.className = 'message-content'
 
-  function draw() {
-    ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
-
-    const elapsedMs = Date.now() - startTime;
-    const elapsedSec = elapsedMs / 1000;
-
-    const centerX = canvas.clientWidth / 2;
-    const centerY = canvas.clientHeight / 2;
-
-    // Grid center dimensions
-    const centerCol = centerX / totalSize;
-    const centerRow = centerY / totalSize;
-
-    // Time-based sweeping factor for the expanding reveal wave
-    // Sweeps out at speed factor 0.5
-    const timeVal = elapsedSec * 1.8; 
-
-    for (let i = 0; i < dots.length; i++) {
-      const dot = dots[i];
-
-      // Calculate distance in grid columns/rows from the center
-      const dx = dot.col - centerCol;
-      const dy = dot.row - centerRow;
-      const gridDist = Math.sqrt(dx * dx + dy * dy);
-
-      // Intro reveal timing offset matching the shader formula:
-      // timing_offset_intro = dist_from_center * 0.01 + (random(st2) * 0.15)
-      const timingOffset = gridDist * 0.1 + dot.showOffset * 0.8;
-
-      if (timeVal >= timingOffset) {
-        // Shimmer frequency calculation:
-        // float rand = random(st2 * floor((u_time / frequency) + showOffset + frequency))
-        const frequency = 2.5; // faster twinkle for extra premium vibe
-        const timeStep = Math.floor(elapsedSec / frequency + dot.showOffset + frequency);
-        const randSeed = random(dot.col * 2 + timeStep, dot.row * 3 - timeStep);
-        
-        // Pick base opacity
-        const opacityIndex = Math.floor(randSeed * opacities.length);
-        let baseOpacity = opacities[opacityIndex] * 0.08; // scale down to be a subtle background
-
-        // Apply a brightness boost (flash) when a dot is first revealed
-        if (timeVal < timingOffset + 0.35) {
-          const progress = (timeVal - timingOffset) / 0.35;
-          const flashMultiplier = 1.0 + (1.0 - progress) * 1.5; // up to 2.5x flash
-          baseOpacity *= flashMultiplier;
-        }
-
-        // Mouse proximity glow calculation
-        if (isMouseOver) {
-          const mdx = dot.x - mouse.x;
-          const mdy = dot.y - mouse.y;
-          const mouseDist = Math.sqrt(mdx * mdx + mdy * mdy);
-          const maxGlowDistance = 140; // area of hover influence
-
-          if (mouseDist < maxGlowDistance) {
-            const glowRatio = 1.0 - (mouseDist / maxGlowDistance);
-            // Smoothly cubic-ease the glow ratio for nicer falloff
-            const glowFactor = glowRatio * glowRatio * glowRatio;
-            // Boost dot visibility by up to 0.4 opacity when hovered
-            baseOpacity = baseOpacity * (1.0 - glowFactor) + (glowFactor * 0.32);
-          }
-        }
-
-        // Draw the square dot
-        ctx.fillStyle = `rgba(255, 255, 255, ${baseOpacity.toFixed(4)})`;
-        ctx.fillRect(dot.x - dotSize / 2, dot.y - dotSize / 2, dotSize, dotSize);
-      }
+    if (isMarkdown) {
+      // Very basic formatting converter
+      let formatted = text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/`(.*?)`/g, '<code>$1</code>')
+        .replace(/\n/g, '<br>')
+      contentDiv.innerHTML = formatted
+    } else {
+      contentDiv.innerText = text
     }
 
-    requestAnimationFrame(draw);
+    msgDiv.appendChild(contentDiv)
+    chatMessages.appendChild(msgDiv)
+    chatMessages.scrollTop = chatMessages.scrollHeight
+    return msgDiv
   }
 
-  requestAnimationFrame(draw);
+  function sendMessage() {
+    const text = input.value.trim()
+    if (!text) return
+
+    appendMessage('user', text)
+    input.value = ''
+    input.style.height = 'auto'
+    hideMenu()
+
+    // Process commands in simulator
+    setTimeout(() => {
+      if (text === '@donkey save') {
+        simulateSave()
+      } else if (text.startsWith('@donkey use') || text.includes('mock-auth')) {
+        simulateUse(text)
+      } else {
+        simulateNormalChat(text)
+      }
+    }, 600)
+  }
+
+  // 1. Simulate saving context
+  function simulateSave() {
+    const msgDiv = appendMessage('assistant', 'Starting memory extraction...')
+    const content = msgDiv.querySelector('.message-content')
+
+    // Append loading bar
+    const progress = document.createElement('div')
+    progress.className = 'progress-container'
+    progress.innerHTML = '<div class="progress-bar"></div>'
+
+    const label = document.createElement('div')
+    label.className = 'progress-label'
+    label.textContent = 'Scraping conversation history...'
+
+    content.appendChild(progress)
+    content.appendChild(label)
+
+    setTimeout(() => {
+      label.textContent = 'Contacting Cloudflare proxy worker...'
+    }, 500)
+
+    setTimeout(() => {
+      label.textContent = 'Storing structured memory in IndexedDB...'
+    }, 1000)
+
+    setTimeout(() => {
+      content.innerHTML = `
+        <p>🫏 <strong>Donkey:</strong> Scraped 12 turns of active conversation.</p>
+        <p>Memory extracted and saved locally under project <strong><code>mock-auth</code></strong>!</p>
+        <p style="margin-top:8px;padding-left:10px;border-left:2px solid #818cf8;font-size:11px;color:#94a3b8">
+          <strong>Summary:</strong> Auth system using JWT sessions and MongoDB storage.<br>
+          <strong>Decisions:</strong> 2 captured (JWT for sessions, MongoDB for auth)<br>
+          <strong>Mistakes:</strong> 1 captured (Avoid token variables in memory)
+        </p>
+      `
+    }, 1500)
+  }
+
+  // 2. Simulate injecting memory
+  function simulateUse(command) {
+    // Show toast notification slide-in
+    toast.classList.add('show')
+    setTimeout(() => {
+      toast.classList.remove('show')
+    }, 3000)
+
+    // Append assistant response showing injection
+    appendMessage('assistant', `🫏 **Donkey:** Injected memory block for **\`mock-auth\`** into your chat input!
+
+See the text in the input box below. You can send this formatted context straight to the AI model in your next message.`, true)
+
+    // Place the memory text block in the input
+    const memoryText = `--- Memory: mock-auth (saved 6/17/2026) ---
+Context: Node.js authentication module using JWT.
+Decisions:
+- Using JWT for sessions (because: scalable stateless auth)
+- MongoDB for user credentials storage (because: flexible document schema)
+Mistakes:
+- Using local variable state for active tokens (caused token leaks on server crash)
+--- End of memory ---
+
+`
+    input.value = memoryText
+    input.focus()
+    input.style.height = 'auto'
+    input.style.height = `${input.scrollHeight - 4}px`
+  }
+
+  // 3. Normal chat fallback inside simulator
+  function simulateNormalChat(text) {
+    appendMessage('assistant', `🤖 **AI Assistant:** I received your message: "${text}"
+
+To test **Donkey's** core functionality:
+1. Type **\`@donkey save\`** and press Enter to simulate saving this conversation thread.
+2. Select **\`@donkey use mock-auth\`** to see how Donkey formats and injects memories into your input!`, true)
+  }
 }

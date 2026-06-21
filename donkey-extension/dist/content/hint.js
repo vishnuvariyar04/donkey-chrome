@@ -24,29 +24,29 @@
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      padding: 10px 16px;
+      border-radius: 10px;
+      padding: 7px 10px;
       z-index: 999999;
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
       pointer-events: none;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 3px;
+      max-width: 320px;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     `
     const row = (cmd, dim, desc) => `
-      <div style="display:flex;align-items:baseline;gap:6px;font-size:12px;">
-        <span style="color:#ffffff;font-weight:600;white-space:nowrap">${cmd}</span>
+      <div style="display:flex;align-items:baseline;gap:5px;font-size:11px;line-height:1.35;">
+        <span style="color:#e2e8f0;font-weight:600;white-space:nowrap">${cmd}</span>
         ${dim ? `<span style="color:#64748b;white-space:nowrap">${dim}</span>` : ''}
-        <span style="color:#475569">—</span>
-        <span style="color:#94a3b8">${desc}</span>
+        <span style="color:#94a3b8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${desc}</span>
       </div>
     `
     hint.innerHTML = `
-      <div style="font-size:10px;font-weight:700;color:#818cf8;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:2px">Donkey Shortcuts</div>
-      ${row('@donkey save', '', 'save the full conversation as memory')}
-      ${row('@donkey save', '&lt;describe what to capture&gt;', 'save a specific idea or decision')}
-      ${row('@donkey', '&lt;what are you working on&gt;', 'pull in relevant past context')}
+      <div style="font-size:9px;font-weight:700;color:#818cf8;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:1px">Donkey</div>
+      ${row('@donkey save', '', 'save this chat as memory')}
+      ${row('@donkey use', '&lt;project&gt;', 'inject a saved project')}
+      ${row('@donkey', '[filter] from &lt;project&gt;', 'inject only those segments')}
     `
     document.body.appendChild(hint)
   }
